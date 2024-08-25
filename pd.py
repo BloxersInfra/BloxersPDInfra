@@ -3,6 +3,7 @@ import discord
 import requests
 from dotenv import load_dotenv
 from datetime import datetime
+from discord.ext import commands
 
 # Load environment variables from the .env file
 load_dotenv(dotenv_path='/Users/alexrichey/Desktop/PDINfra/BloxersPDInfra/apis.env')
@@ -20,48 +21,58 @@ if not DISCORD_TOKEN:
 intents = discord.Intents.default()
 intents.message_content = True
 
-client = discord.Client(intents=intents)
+# Initialize bot with commands extension
+bot = commands.Bot(command_prefix='/', intents=intents)
 
 # Cooldown settings
 COOLDOWN_SECONDS = 300  # Cooldown period in seconds
 last_trigger_time = None  # Variable to store the last trigger time
 
-@client.event
+@bot.event
 async def on_ready():
-    print(f'Logged in as {client.user}')
+    print(f'Logged in as {bot.user}')
 
-@client.event
-async def on_message(message):
+@bot.command()
+async def pagepteam(ctx):
     global last_trigger_time  # Declare as global to modify inside the function
 
     # Ignore messages from the bot itself
-    if message.author == client.user:
+    if ctx.author == bot.user:
         return
 
     # Command to trigger PagerDuty alert
-    if message.content in ['/pagepteam', '/pagePTeam']: #issue 5 fix (string to array of strings)
-        current_time = datetime.utcnow()
-        
-        # Check if the command is on cooldown
-        if last_trigger_time:
-            elapsed_time = (current_time - last_trigger_time).total_seconds()
-            if elapsed_time < COOLDOWN_SECONDS:
-                remaining_time = int(COOLDOWN_SECONDS - elapsed_time)
-                await message.channel.send(
-                    f"⚠️ This command is on cooldown. Please wait {remaining_time} seconds before trying again."
-                )
-                return
-        
-        # Trigger the PagerDuty alert
-        success, response_message = trigger_pagerduty_alert()
-
-        if success:
-            await message.channel.send("✅ Corporate Escalations team has been paged successfully.")
-            last_trigger_time = current_time  # Update the last trigger time
-        else:
-            await message.channel.send(
-                f"❌ Failed to page Corporate Escalations team. Error: {response_message}"
+    current_time = datetime.utcnow()
+    
+    # Check if the command is on cooldown
+    if last_trigger_time:
+        elapsed_time = (current_time - last_trigger_time).total_seconds()
+        if elapsed_time < COOLDOWN_SECONDS:
+            remaining_time = int(COOLDOWN_SECONDS - elapsed_time)
+            await ctx.send(
+                f"⚠️ This command is on cooldown. Please wait {remaining_time} seconds before trying again."
             )
+            return
+    
+    # Trigger the PagerDuty alert
+    success, response_message = trigger_pagerduty_alert()
+
+    if success:
+        await ctx.send("✅ Corporate Escalations team has been paged successfully.")
+        last_trigger_time = current_time  # Update the last trigger time
+    else:
+        await ctx.send(
+            f"❌ Failed to page Corporate Escalations team. Error: {response_message}"
+        )
+
+# Command to make the bot go offline
+@bot.command()
+async def offline(ctx):
+    # Check if the command is issued in the specific guild and channel
+    if ctx.guild.id == 1193296724811337748 and ctx.channel.id == 1193297503387398184:
+        await ctx.send("Bot is going offline... 👋")
+        await bot.close()
+    else:
+        await ctx.send("You cannot use this command in this channel.")
 
 def trigger_pagerduty_alert():
     url = 'https://api.pagerduty.com/incidents'
@@ -101,4 +112,4 @@ def trigger_pagerduty_alert():
         return False, str(e)
 
 # Run the bot
-client.run(DISCORD_TOKEN)
+bot.run(DISCORD_TOKEN)
