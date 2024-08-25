@@ -1,0 +1,11 @@
+Join Requests via ROBLOX API: https://create.roblox.com/docs/cloud/reference/GroupJoinRequest#List-Group-Join-Requests
+
+curl -L -X GET 'https://apis.roblox.com/cloud/v2/groups/{group}/join-requests?maxPageSize=10&pageToken={string}&filter={string}' \
+  -H 'x-api-key: {your-api-key}'
+
+  {group} = 32925550
+
+
+command: /joinrequests
+
+Modifying V1 datastores: https://create.roblox.com/docs/reference/cloud/datastores-api/v1
