@@ -1,11 +1,18 @@
 import os
 import discord
 import requests
+from dotenv import load_dotenv
+
+# Load environment variables from the .env file
+load_dotenv()
 
 # Fetch the API keys from environment variables
 DISCORD_TOKEN = os.getenv('DISCORD_TOKEN')
 PAGERDUTY_API_KEY = os.getenv('PAGERDUTY_API_KEY')
 PAGERDUTY_SERVICE_ID = os.getenv('PAGERDUTY_SERVICE_ID')
+
+# Check if the DISCORD_TOKEN is properly loaded
+print(f'DISCORD_TOKEN: {DISCORD_TOKEN}')  # Should print the token or None
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -52,4 +59,5 @@ def trigger_pagerduty_alert():
     else:
         print(f"Failed to trigger PagerDuty alert: {response.status_code} - {response.text}")
 
+# This is the correct way to run the bot
 client.run(DISCORD_TOKEN)
