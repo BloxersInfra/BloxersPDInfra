@@ -53,3 +53,5 @@ def trigger_pagerduty_alert():
         print(f"Failed to trigger PagerDuty alert: {response.status_code} - {response.text}")
 
 client.run(DISCORD_TOKEN)
+
+# WIP: Deploy to Heroku 
