@@ -23,7 +23,7 @@ intents.message_content = True
 client = discord.Client(intents=intents)
 
 # Cooldown settings
-COOLDOWN_SECONDS = 300  # Cooldown period in seconds
+COOLDOWN_SECONDS = 60  # Cooldown period in seconds
 last_trigger_time = None  # Variable to store the last trigger time
 
 @client.event
