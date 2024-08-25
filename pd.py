@@ -4,7 +4,7 @@ import requests
 from dotenv import load_dotenv
 
 # Load environment variables from the .env file
-load_dotenv()
+load_dotenv(dotenv_path='/Users/alexrichey/Desktop/PDINfra/BloxersPDInfra/api.env')
 
 # Fetch the API keys from environment variables
 DISCORD_TOKEN = os.getenv('DISCORD_TOKEN')
