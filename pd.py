@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 from datetime import datetime
 
 # Load environment variables from the .env file
-load_dotenv(dotenv_path='/Users/alexrichey/Desktop/PDINfra/BloxersPDInfra/api.env')
+load_dotenv(dotenv_path='/Users/alexrichey/Desktop/PDINfra/BloxersPDInfra/apis.env')
 
 # Fetch the API keys from environment variables
 DISCORD_TOKEN = os.getenv('DISCORD_TOKEN')
