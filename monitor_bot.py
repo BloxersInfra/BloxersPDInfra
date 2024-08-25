@@ -1,12 +1,12 @@
 import os
 import discord
 import requests
-import asyncio
-from discord.ext import tasks
 from dotenv import load_dotenv
+from discord.ext import commands, tasks
+from datetime import datetime
 
 # Load environment variables from the .env file
-load_dotenv(dotenv_path='/Users/alexrichey/Desktop/PDINfra/BloxersPDInfra/pings.env')
+load_dotenv(dotenv_path='/Users/alexrichey/Desktop/PDINfra/BloxersPDInfra/apis.env')
 
 # Fetch the API keys and IDs from environment variables
 DISCORD_TOKEN = os.getenv('DISCORD_TOKEN')
@@ -15,7 +15,14 @@ PAGERDUTY_SERVICE_ID = os.getenv('PAGERDUTY_SERVICE_ID')
 PAGERDUTY_USER_EMAIL = os.getenv('PAGERDUTY_USER_EMAIL')
 ALERT_CHANNEL_ID = int(os.getenv('ALERT_CHANNEL_ID'))  # Channel ID for alerts
 
-client = discord.Client(intents=discord.Intents.default())
+# Specific guild and channel for the /offline command
+SPECIFIC_GUILD_ID = 1193296724811337748
+SPECIFIC_CHANNEL_ID = 1193297503387398184
+
+intents = discord.Intents.default()
+intents.message_content = True
+
+bot = commands.Bot(command_prefix='/', intents=intents)
 
 # Function to trigger PagerDuty alert
 def trigger_pagerduty_alert():
@@ -54,21 +61,32 @@ def trigger_pagerduty_alert():
 async def check_bot_status():
     try:
         # Check if the bot is still in the guild (server)
-        guild = client.get_guild(1193296724811337748)  # Replace with your guild ID
+        guild = bot.get_guild(SPECIFIC_GUILD_ID)
 
         if guild is None:
             # If the bot is not found in the guild, trigger an alert
-            alert_channel = client.get_channel(ALERT_CHANNEL_ID)
+            alert_channel = bot.get_channel(ALERT_CHANNEL_ID)
             if alert_channel:
                 await alert_channel.send("⚠️ The bot has been kicked from the server! Triggering a PagerDuty incident.")
             trigger_pagerduty_alert()
     except Exception as e:
         print(f"Error while checking bot status: {e}")
 
-@client.event
+@bot.event
 async def on_ready():
-    print(f'Logged in as {client.user}')
+    print(f'Logged in as {bot.user}')
     check_bot_status.start()  # Start the status check loop
 
-# Run the monitoring bot
-client.run(DISCORD_TOKEN)
+# Command to make the bot go offline
+@bot.command()
+@commands.has_permissions(administrator=True)  # Restrict this command to administrators
+async def offline(ctx):
+    # Check if the command is issued in the specific guild and channel
+    if ctx.guild.id == SPECIFIC_GUILD_ID and ctx.channel.id == SPECIFIC_CHANNEL_ID:
+        await ctx.send("Bot is going offline... 👋")
+        await bot.close()
+    else:
+        await ctx.send("You cannot use this command in this channel.")
+
+# Run the bot
+bot.run(DISCORD_TOKEN)
