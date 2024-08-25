@@ -39,7 +39,7 @@ async def on_message(message):
         return
 
     # Command to trigger PagerDuty alert
-    if message.content == '/pagePTeam':
+    if message.content in ['/pagepteam', '/pagePTeam']:
         current_time = datetime.utcnow()
         
         # Check if the command is on cooldown
