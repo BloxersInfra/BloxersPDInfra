@@ -1,2 +1,4 @@
 apis.env
 pings.env
+DockerFile
+fly.toml
