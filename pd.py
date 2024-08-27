@@ -3,7 +3,7 @@ import discord
 import requests
 from dotenv import load_dotenv
 from datetime import datetime
-from discord.ext import commands
+from discord.ext import commands, tasks
 
 # Load environment variables from the .env file
 load_dotenv(dotenv_path='/Users/alexrichey/Desktop/PDINfra/BloxersPDInfra/apis.env')
@@ -31,6 +31,8 @@ last_trigger_time = None  # Variable to store the last trigger time
 @bot.event
 async def on_ready():
     print(f'Logged in as {bot.user}')
+    # Start the background task
+    ping_task.start()
 
 @bot.command()
 async def pagepteam(ctx):
@@ -110,6 +112,13 @@ def trigger_pagerduty_alert():
     except requests.exceptions.RequestException as e:
         print(f"Exception occurred while triggering PagerDuty alert: {e}")
         return False, str(e)
+
+# Background task to send a "Ping! I'm alive." message every 60 seconds
+@tasks.loop(seconds=60)
+async def ping_task():
+    channel = bot.get_channel(1277486534706204776)
+    if channel:
+        await channel.send("Ping! I'm alive.")
 
 # Run the bot
 bot.run(DISCORD_TOKEN)
