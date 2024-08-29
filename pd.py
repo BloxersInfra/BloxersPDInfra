@@ -114,7 +114,7 @@ def trigger_pagerduty_alert():
         return False, str(e)
 
 # Background task to send a "Ping! I'm alive." message every 60 seconds
-@tasks.loop(seconds=61)
+@tasks.loop(seconds=61) #Issue 11 Fix
 async def ping_task():
     channel = bot.get_channel(1277486534706204776)
     if channel:
